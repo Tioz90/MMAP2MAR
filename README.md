@@ -28,8 +28,8 @@ The testing relied on `Merlin 1.7.0`.
 The repository is organized along the following directory structure:
 
 * `src` - contains the source files
-* `uai/` - contains example graphical models
-* `merlin/` - contains the `merlin` executable that should be called `merlin`, intermediate working files are also generated in here
+* `uai` - contains example graphical models
+* `merlin` - contains the `merlin` executable that should be called `merlin`, intermediate working files are also generated in here
 
 # Runnig the Solver
 
