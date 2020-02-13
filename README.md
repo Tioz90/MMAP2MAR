@@ -1,4 +1,5 @@
 # MMAP2MAR
+This repository contains the code necessary to reproduce the results presented in our recent paper "Approximate MMAP by Marginal Search" [https://arxiv.org/abs/2002.04827].
 
 # Contact
 
