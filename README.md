@@ -32,7 +32,7 @@ The repository is organized along the following directory structure:
 * `uai` - contains example graphical models
 * `merlin` - contains the `merlin` executable that should be called `merlin`, intermediate working files are also generated in here
 
-# Runnig the Solver
+# Running the Solver
 
 MMAP2MAR accepts the following command line arguments:
 
