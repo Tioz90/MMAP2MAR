@@ -97,3 +97,4 @@ if max(explained_variables) > 0:
 	print("Mean exact time:", np.mean(merlin_times))
 	print("Observed entropies over iterations:", observed_entropies)
 	print("Number of ignored solutions:",num_ignored)
+ 

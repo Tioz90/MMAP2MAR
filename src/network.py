@@ -61,6 +61,61 @@ class Network:
 			evidence_string += "%d %d " % (variable, state)
 		f.write(evidence_string)
 		f.close()
+	 
+	def compute_joint( self, variable,folder, file ):
+		filename=folder+file
+		with open( filename, 'r' ) as f:
+			data = f.readlines()
+			
+			# increment variables
+			num_variables = int( data[ 1 ] )
+			data[ 1 ] = str( num_variables + 1 ) + "\n"
+			
+			# add a new dummy variable of cardinality 2
+			cardinalities = data[ 2 ].split()
+			data[ 2 ] = " ".join( cardinalities )
+			data[ 2 ] += " 2\n"
+			
+			# increment fields
+			num_fields = int( data[ 3 ] )
+			data[ 3 ] = str( num_fields + 1 ) + "\n"
+			
+			# declare new field for dummy variable
+			data.insert(num_fields+4,"dummy field")
+			data.append("dummy field")
+		
+		marginals = {}
+		for v in range(num_variables):
+			if v!=variable:
+				# fill in new field for dummy variable
+				data[num_fields+4]= "3 "+str(num_variables)+" "+str(variable)+" "+str(v)+"\n"
+				
+				# add the field cardinality for the dummy variable
+				data[-1]= "\n"+str( 2 * int( cardinalities[ variable ] ) * int( cardinalities[ v ] ) )
+				
+				# write a UAI file for each combination of states in the couple of variables
+
+				for i in range(int(cardinalities[variable])):
+					for j in range(int(cardinalities[v])):
+						joint_filename = file +"_"+ "_".join([str(variable),str(v),str(i),str(j)])
+						os.makedirs( os.path.dirname( folder + "joints/" + joint_filename ), exist_ok=True )
+						
+						with open( folder + "joints/" + joint_filename, 'w' ) as f:
+							f.writelines( data )
+							
+						with open( folder + "joints/" + joint_filename, 'a' ) as f:
+							field = np.zeros( int( cardinalities[variable ] ) * int( cardinalities[v ] ) )
+							field[ i *int(cardinalities[v]) + j ]=1
+							field_inverted = 1 - field
+							f.write("\n")
+							f.write(" ".join("".join(item) for item in field.astype( str ) ) + " "+ " ".join("".join(item) for item in field_inverted.astype( str ) ) )
+						
+						# calculate marginals for network with dummy variable
+						os.system(self.merlin_path + '/merlin -f ' + folder + "joints/" + joint_filename +' -t MAR -a bte' +' -e ' + self.files_folder + self.evidence_file +' -o ' + self.files_folder + self.file +' > ' + self.merlin_path + '/merlin_mar' )
+						with open( self.files_folder + self.file + '.MAR' ) as f:
+							data_marginals = f.readlines()
+							marginal = data_marginals[5].split()[-2]
+		return
 	
 	def compute_marginals(self, entropy_threshold):
 		self.marginals = []
@@ -85,6 +140,9 @@ class Network:
 					mass_function[state] = float(marginals[step + state])
 			step += self.cardinalities[variable] + 1
 			self.marginals.append(mass_function)
+			
+			self.compute_joint(variable=variable,folder=self.files_folder ,file=self.file,)
+			
 			self.entropies.append(entropy(mass_function, self.cardinalities[variable]))
 			self.most_probable_states.append(mass_function.index(max(mass_function)))
 			
